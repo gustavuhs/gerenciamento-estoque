@@ -41,10 +41,35 @@ namespace Service
             {
                 throw new InvalidOperationException($"Já existe um produto com o SKU {produto.CodigoSku}");
             }
+            
+            ValidarProduto(produto);
 
             produto.DataCriacao = DateTime.UtcNow;
             await _produtoRepository.AddAsync(produto);
             return produto.Id;
+        }
+        
+        private void ValidarProduto(Produto produto)
+        {
+            if (string.IsNullOrWhiteSpace(produto.CodigoSku))
+            {
+                throw new ArgumentException("O código SKU é obrigatório");
+            }
+            
+            if (string.IsNullOrWhiteSpace(produto.Nome))
+            {
+                throw new ArgumentException("O nome do produto é obrigatório");
+            }
+            
+            if (produto.PrecoUnitario <= 0)
+            {
+                throw new ArgumentException("O preço unitário deve ser maior que zero");
+            }
+            
+            if (produto.QuantidadeMinima < 0)
+            {
+                throw new ArgumentException("A quantidade mínima não pode ser negativa");
+            }
         }
 
         public async Task UpdateProdutoAsync(Produto produto)
@@ -55,12 +80,13 @@ namespace Service
                 throw new InvalidOperationException($"Produto com ID {produto.Id} não encontrado");
             }
 
-            // Verifica se o SKU foi alterado e se já existe outro produto com esse SKU
             if (existingProduto.CodigoSku != produto.CodigoSku && 
                 await _produtoRepository.ExistsBySkuAsync(produto.CodigoSku))
             {
                 throw new InvalidOperationException($"Já existe um produto com o SKU {produto.CodigoSku}");
             }
+            
+            ValidarProduto(produto);
 
             await _produtoRepository.UpdateAsync(produto);
         }
@@ -167,6 +193,57 @@ namespace Service
                 if (estoqueAtual < produto.QuantidadeMinima)
                 {
                     result.Add(produto);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<decimal> CalcularValorTotalEstoqueAsync()
+        {
+            decimal valorTotal = 0;
+            var produtos = await _produtoRepository.GetAllAsync();
+
+            foreach (var produto in produtos)
+            {
+                int quantidadeEstoque = await _produtoRepository.GetEstoqueAtualAsync(produto.Id);
+                valorTotal += quantidadeEstoque * produto.PrecoUnitario;
+            }
+
+            return valorTotal;
+        }
+
+        public async Task<List<Produto>> ListarProdutosAVencerEmDiasAsync(int dias)
+        {
+            if (dias <= 0)
+            {
+                throw new ArgumentException("O número de dias deve ser maior que zero");
+            }
+
+            var dataLimite = DateTime.UtcNow.AddDays(dias);
+            var result = new List<Produto>();
+            var produtos = await _produtoRepository.GetAllAsync();
+
+            foreach (var produto in produtos)
+            {
+                if (produto.Categoria == CategoriaProduto.PERECIVEL)
+                {
+                    var movimentacoes = await _movimentacaoRepository.GetByProdutoIdAsync(produto.Id);
+                    
+                    var movimentacoesAVencer = movimentacoes
+                        .Where(m => m.Tipo == TipoMovimentacao.ENTRADA && 
+                                   m.DataValidade.HasValue && 
+                                   m.DataValidade.Value <= dataLimite &&
+                                   m.DataValidade.Value >= DateTime.UtcNow)
+                        .ToList();
+                    
+                    if (movimentacoesAVencer.Any())
+                    {
+                        if (!result.Contains(produto))
+                        {
+                            result.Add(produto);
+                        }
+                    }
                 }
             }
 

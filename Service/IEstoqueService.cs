@@ -17,5 +17,7 @@ namespace Service
         Task<int> RegistrarSaidaAsync(MovimentacaoEstoque movimentacao);
         Task<int> GetEstoqueAtualAsync(int produtoId);
         Task<List<Produto>> GetProdutosAbaixoDoMinimoAsync();
+        Task<decimal> CalcularValorTotalEstoqueAsync();
+        Task<List<Produto>> ListarProdutosAVencerEmDiasAsync(int dias);
     }
 }
