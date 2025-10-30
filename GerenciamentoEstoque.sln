@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36109.1 d17.14
+VisualStudioVersion = 17.14.36109.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gerenciamento-estoque", "GerenciamentoEstoque\gerenciamento-estoque.csproj", "{4177AB58-4DF0-41E8-AE17-A80AF3239086}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{C2D36A35-0697-4F82-BECC-C8784A78D246}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{16B11179-7911-4A0E-B924-F6FC2D4B36FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{3CE44AA5-5358-4666-9837-F27ABBCB0EFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{16B11179-7911-4A0E-B924-F6FC2D4B36FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16B11179-7911-4A0E-B924-F6FC2D4B36FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16B11179-7911-4A0E-B924-F6FC2D4B36FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CE44AA5-5358-4666-9837-F27ABBCB0EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CE44AA5-5358-4666-9837-F27ABBCB0EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CE44AA5-5358-4666-9837-F27ABBCB0EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CE44AA5-5358-4666-9837-F27ABBCB0EFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

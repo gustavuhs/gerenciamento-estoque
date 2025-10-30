@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Repository;
 using Service;
 using System.Net;

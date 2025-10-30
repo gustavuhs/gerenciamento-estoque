@@ -1,4 +1,5 @@
 using Domain;
+using Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Repository;
 
@@ -53,17 +54,17 @@ namespace Service
         {
             if (string.IsNullOrWhiteSpace(produto.CodigoSku))
             {
-                throw new ArgumentException("O código SKU é obrigatório");
+                throw new DadosObrigatoriosProdutoException("Código SKU");
             }
             
             if (string.IsNullOrWhiteSpace(produto.Nome))
             {
-                throw new ArgumentException("O nome do produto é obrigatório");
+                throw new DadosObrigatoriosProdutoException("Nome");
             }
             
             if (produto.PrecoUnitario <= 0)
             {
-                throw new ArgumentException("O preço unitário deve ser maior que zero");
+                throw new DadosObrigatoriosProdutoException("Preço Unitário");
             }
             
             if (produto.QuantidadeMinima < 0)
@@ -115,7 +116,7 @@ namespace Service
         {
             if (movimentacao.Quantidade <= 0)
             {
-                throw new InvalidOperationException("A quantidade deve ser maior que zero");
+                throw new QuantidadeInvalidaException();
             }
 
             var produto = await _produtoRepository.GetByIdAsync(movimentacao.ProdutoId);
@@ -133,7 +134,12 @@ namespace Service
 
                 if (!movimentacao.DataValidade.HasValue)
                 {
-                    throw new InvalidOperationException("Produtos perecíveis devem ter data de validade");
+                    throw new ProdutoPerecivelSemDataValidadeException();
+                }
+                
+                if (movimentacao.DataValidade.Value < DateTime.Now)
+                {
+                    throw new ProdutoVencidoException();
                 }
             }
 
@@ -148,7 +154,7 @@ namespace Service
         {
             if (movimentacao.Quantidade <= 0)
             {
-                throw new InvalidOperationException("A quantidade deve ser maior que zero");
+                throw new QuantidadeInvalidaException();
             }
 
             var produto = await _produtoRepository.GetByIdAsync(movimentacao.ProdutoId);
@@ -156,11 +162,16 @@ namespace Service
             {
                 throw new InvalidOperationException($"Produto com ID {movimentacao.ProdutoId} não encontrado");
             }
+            
+            if (produto.Categoria == CategoriaProduto.PERECIVEL && movimentacao.DataValidade.HasValue && movimentacao.DataValidade.Value < DateTime.Now)
+            {
+                throw new ProdutoVencidoException();
+            }
 
             int estoqueAtual = await _produtoRepository.GetEstoqueAtualAsync(movimentacao.ProdutoId);
             if (estoqueAtual < movimentacao.Quantidade)
             {
-                throw new InvalidOperationException($"Estoque insuficiente. Disponível: {estoqueAtual}, Solicitado: {movimentacao.Quantidade}");
+                throw new EstoqueInsuficienteException();
             }
 
             movimentacao.Tipo = TipoMovimentacao.SAIDA;
