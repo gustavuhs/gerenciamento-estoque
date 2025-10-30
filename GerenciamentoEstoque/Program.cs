@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Repository;
 using Service;
 using System.Net;
@@ -10,6 +11,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configuração do DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseInMemoryDatabase("GerenciamentoEstoqueDb"));
 
 // Registro dos repositórios e serviços
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
